@@ -72,9 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
     selectedDiyas: [0, 1, 2],
     stickerPositions: {},
     selectedStickerKey: '',
-    recipientName: 'Bestie',
-    senderName: 'Tanishka',
-    message: 'May your Diwali be filled with happiness and light!'
+    recipientName: '',
+    senderName: '',
+    message: ''
   };
 
   /* ──────────────────────────────────────────────
@@ -191,9 +191,16 @@ document.addEventListener('DOMContentLoaded', () => {
             && /^(sweet-(ladoo|kaju_katli|barfi|peda|jalebi|gulab_jamun|coconut_ladoo|modak)(-[1-9]|-1[01])?|flower-[0-5]-[0-7]|diya-[0-3])$/.test(data.selectedStickerKey)
             ? data.selectedStickerKey
             : '';
-          state.recipientName = typeof data.recipientName === 'string' ? data.recipientName.slice(0, 30) : '';
-          state.senderName = typeof data.senderName === 'string' ? data.senderName.slice(0, 30) : '';
-          state.message = typeof data.message === 'string' ? data.message.slice(0, 100) : '';
+          state.recipientName = typeof data.recipientName === 'string' && data.recipientName !== 'Bestie'
+            ? data.recipientName.slice(0, 30)
+            : '';
+          state.senderName = typeof data.senderName === 'string' && data.senderName !== 'Tanishka'
+            ? data.senderName.slice(0, 30)
+            : '';
+          state.message = typeof data.message === 'string'
+            && data.message !== 'May your Diwali be filled with happiness and light!'
+            ? data.message.slice(0, 100)
+            : '';
         }
 
         /* Restore form fields */

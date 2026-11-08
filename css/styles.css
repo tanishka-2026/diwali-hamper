@@ -8,6 +8,8 @@
    CSS CUSTOM PROPERTIES
    ─────────────────────────────────────────── */
 :root {
+  color-scheme: light;
+
   /* Primary palette */
   --butter-cream: #FFF1D1;
   --strawberry-pink: #F5B9C5;
