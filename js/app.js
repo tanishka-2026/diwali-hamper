@@ -260,12 +260,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* ──────────────────────────────────────────────
-   *  SHARE LINK GENERATION
-   * ────────────────────────────────────────────── */
-
-  async function generateShareLink() {
-    const data = {
+  function getShareData() {
+    return {
       b: state.selectedBox,
       s: state.selectedSweets,
       q: state.sweetQuantities,
@@ -280,6 +276,76 @@ document.addEventListener('DOMContentLoaded', () => {
       f: state.senderName,
       m: state.message
     };
+  }
+
+  function encodeShortPositionKey(key) {
+    const sweetMatch = key.match(/^sweet-(ladoo|kaju_katli|barfi|peda|jalebi|gulab_jamun|coconut_ladoo|modak)(?:-(\d+))?$/);
+    if (sweetMatch) {
+      const sweetIndex = SWEETS.findIndex(sweet => sweet.id === sweetMatch[1]);
+      return (Number(sweetMatch[2] || 0) * SWEETS.length) + sweetIndex;
+    }
+    const flowerMatch = key.match(/^flower-(\d+)-(\d+)$/);
+    if (flowerMatch) return 96 + Number(flowerMatch[1]) * MAX_FLOWER_QUANTITY + Number(flowerMatch[2]);
+    const diyaMatch = key.match(/^diya-(\d+)$/);
+    if (diyaMatch) return 144 + Number(diyaMatch[1]);
+    return -1;
+  }
+
+  async function encodeShortSharePayload() {
+    const data = getShareData();
+    const sweetQuantities = data.s.map(index => data.q[index] || 1);
+    const flowerQuantities = data.fl.map(index => data.fq[index] || 1);
+    const activeStickerCodes = new Set();
+    data.s.forEach(index => {
+      const sweetId = SWEETS[index].id;
+      for (let piece = 0; piece < (data.q[index] || 1); piece += 1) {
+        activeStickerCodes.add(piece * SWEETS.length + index);
+      }
+    });
+    data.fl.forEach(index => {
+      for (let repeat = 0; repeat < (data.fq[index] || 1); repeat += 1) {
+        activeStickerCodes.add(96 + index * MAX_FLOWER_QUANTITY + repeat);
+      }
+    });
+    data.ds.forEach(index => activeStickerCodes.add(144 + index));
+
+    const positions = Object.entries(data.sp)
+      .map(([key, position]) => [encodeShortPositionKey(key), position])
+      .filter(([code, position]) => activeStickerCodes.has(code) && position)
+      .map(([code, position]) => [
+        code,
+        Math.round(position.x * 10),
+        Math.round(position.y * 10),
+        Math.round(position.scale * 1000)
+      ]);
+    const selectedKey = encodeShortPositionKey(data.sk);
+    const compactData = [
+      2, data.b, data.s, sweetQuantities, data.d, data.r, data.fl,
+      flowerQuantities, data.ds, positions,
+      activeStickerCodes.has(selectedKey) ? selectedKey : -1,
+      data.t, data.f, data.m
+    ];
+    const json = JSON.stringify(compactData);
+    if (!('CompressionStream' in window)) {
+      throw new Error('Short links require a browser with built-in compression support.');
+    }
+    const compressed = await new Response(
+      new Blob([json]).stream().pipeThrough(new CompressionStream('gzip'))
+    ).arrayBuffer();
+    const bytes = new Uint8Array(compressed);
+    let binary = '';
+    for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+      binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+    }
+    return `c=${btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')}`;
+  }
+
+  /* ──────────────────────────────────────────────
+   *  SHARE LINK GENERATION
+   * ────────────────────────────────────────────── */
+
+  async function generateShareLink() {
+    const data = getShareData();
     const status = el('copyStatus');
     try {
       const json = JSON.stringify(data);
@@ -944,6 +1010,27 @@ document.addEventListener('DOMContentLoaded', () => {
       copyLinkBtn.addEventListener('click', () => {
         const input = el('shareLinkInput');
         if (input) copyToClipboard(input.value);
+      });
+    }
+
+    const shortenLinkBtn = el('shortenLinkBtn');
+    if (shortenLinkBtn) {
+      shortenLinkBtn.addEventListener('click', async () => {
+        const status = el('copyStatus');
+        shortenLinkBtn.disabled = true;
+        if (status) status.textContent = 'Making your link shorter…';
+        try {
+          const shareUrl = new URL('gift.html', window.location.href);
+          shareUrl.hash = await encodeShortSharePayload();
+          const input = el('shareLinkInput');
+          if (input) input.value = shareUrl.href;
+          if (status) status.textContent = 'Shorter link ready — copy it to share.';
+        } catch (error) {
+          console.error('Your shorter share link could not be generated.', error);
+          if (status) status.textContent = error.message || 'Could not shorten the link. Please try again.';
+        } finally {
+          shortenLinkBtn.disabled = false;
+        }
       });
     }
 

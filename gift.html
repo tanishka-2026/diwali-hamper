@@ -191,10 +191,11 @@
         // ── Helper Functions ──
         async function decodeGiftData(hashValue) {
             if (hashValue.length > 24000) throw new Error('Gift link is too large.');
-            if (hashValue.startsWith('z=')) {
+            if (hashValue.startsWith('z=') || hashValue.startsWith('c=')) {
                 if (!('DecompressionStream' in window)) {
                     throw new Error('Compressed gift links are not supported in this browser.');
                 }
+                var compact = hashValue.startsWith('c=');
                 var encoded = hashValue.slice(2).replace(/-/g, '+').replace(/_/g, '/');
                 encoded += '='.repeat((4 - encoded.length % 4) % 4);
                 var binary = atob(encoded);
@@ -202,9 +203,69 @@
                     return character.charCodeAt(0);
                 });
                 var stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
-                return JSON.parse(await new Response(stream).text());
+                var data = JSON.parse(await new Response(stream).text());
+                return compact ? expandCompactGiftData(data) : data;
             }
             return JSON.parse(decodeURIComponent(escape(atob(hashValue))));
+        }
+
+        function expandCompactGiftData(data) {
+            if (!Array.isArray(data) || data[0] !== 2 || data.length !== 14) {
+                throw new Error('Invalid compact gift data.');
+            }
+            var sweetIndices = Array.isArray(data[2]) ? data[2] : [];
+            var sweetQuantities = Array.isArray(data[3]) ? data[3] : [];
+            var flowerIndices = Array.isArray(data[6]) ? data[6] : [];
+            var flowerQuantities = Array.isArray(data[7]) ? data[7] : [];
+            var stickerPositions = {};
+            var sweetIds = ['ladoo','kaju_katli','barfi','peda','jalebi','gulab_jamun','coconut_ladoo','modak'];
+            (Array.isArray(data[9]) ? data[9] : []).forEach(function(position) {
+                if (!Array.isArray(position) || position.length !== 4) return;
+                var code = position[0];
+                var key = '';
+                if (Number.isInteger(code) && code >= 0 && code < 96) {
+                    key = 'sweet-' + sweetIds[code % sweetIds.length];
+                    var piece = Math.floor(code / sweetIds.length);
+                    if (piece) key += '-' + piece;
+                } else if (Number.isInteger(code) && code >= 96 && code < 144) {
+                    var flowerCode = code - 96;
+                    key = 'flower-' + Math.floor(flowerCode / 8) + '-' + (flowerCode % 8);
+                } else if (Number.isInteger(code) && code >= 144 && code < 148) {
+                    key = 'diya-' + (code - 144);
+                }
+                if (key) {
+                    stickerPositions[key] = {
+                        x: position[1] / 10,
+                        y: position[2] / 10,
+                        scale: position[3] / 1000
+                    };
+                }
+            });
+            var selectedCode = data[10];
+            var selectedKey = '';
+            if (Number.isInteger(selectedCode) && selectedCode >= 0 && selectedCode < 96) {
+                selectedKey = 'sweet-' + sweetIds[selectedCode % sweetIds.length];
+                var selectedPiece = Math.floor(selectedCode / sweetIds.length);
+                if (selectedPiece) selectedKey += '-' + selectedPiece;
+            } else if (Number.isInteger(selectedCode) && selectedCode >= 96 && selectedCode < 144) {
+                var selectedFlowerCode = selectedCode - 96;
+                selectedKey = 'flower-' + Math.floor(selectedFlowerCode / 8) + '-' + (selectedFlowerCode % 8);
+            } else if (Number.isInteger(selectedCode) && selectedCode >= 144 && selectedCode < 148) {
+                selectedKey = 'diya-' + (selectedCode - 144);
+            }
+            var quantities = {};
+            sweetIndices.forEach(function(index, position) {
+                quantities[index] = sweetQuantities[position];
+            });
+            var flowerQuantityMap = {};
+            flowerIndices.forEach(function(index, position) {
+                flowerQuantityMap[index] = flowerQuantities[position];
+            });
+            return {
+                b: data[1], s: sweetIndices, q: quantities, d: data[4], r: data[5],
+                fl: flowerIndices, fq: flowerQuantityMap, ds: data[8], sp: stickerPositions,
+                sk: selectedKey, t: data[11], f: data[12], m: data[13]
+            };
         }
 
         function showError(message, btnText) {

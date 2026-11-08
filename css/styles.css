@@ -947,6 +947,21 @@ body::after {
   background: #E8A0B0;
 }
 
+.btn-shorten-link {
+  margin: 2px 0 8px;
+  background: #a77c59;
+}
+
+.btn-shorten-link:hover {
+  background: #8c6448;
+}
+
+.share-link-note {
+  margin: 0 0 8px;
+  color: var(--text-medium);
+  font-size: .76rem;
+}
+
 .copy-status {
   font-size: 0.82rem;
   color: var(--pistachio-green);
