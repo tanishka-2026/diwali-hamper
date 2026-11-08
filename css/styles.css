@@ -1222,18 +1222,26 @@ body::after {
 }
 
 .gift-display-content {
-  max-width: 650px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 590px;
+  min-height: 100vh;
   margin: 0 auto;
-  padding: 100px 20px 40px;
+  padding: 158px 20px 28px;
   text-align: center;
 }
 
 /* Main gift card */
 .gift-card {
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
   background: var(--cream-white);
   border: 2px solid var(--gold);
-  border-radius: 20px;
-  padding: 30px 25px;
+  border-radius: 18px;
+  padding: 22px 20px;
   box-shadow: var(--shadow-medium);
   position: relative;
 }
@@ -1254,7 +1262,7 @@ body::after {
   font-family: 'Great Vibes', cursive;
   font-size: 1.6rem;
   color: var(--text-dark);
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .gift-recipient-name {
@@ -1263,13 +1271,19 @@ body::after {
 
 .gift-preview-box {
   position: relative;
-  margin: 20px auto;
-  max-width: 400px;
+  margin: 12px auto;
+  max-width: 350px;
+}
+
+.gift-preview-box svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .gift-message-card {
-  margin-top: 25px;
-  padding: 20px;
+  margin-top: 16px;
+  padding: 16px;
   background: var(--soft-pink);
   border-radius: 15px;
 }
