@@ -163,7 +163,6 @@
                             return Number.isInteger(index) && index >= 0 && index < 4 && all.indexOf(index) === position;
                         }).slice(0, 4)
                         : [Number.isInteger(giftData.d) && giftData.d >= 0 && giftData.d < 4 ? giftData.d : 0];
-                    if (!diyaIndices.length) diyaIndices = [0];
                     var sweetItems = (giftData.s || [0,1,2]).filter(function(idx) {
                         return Number.isInteger(idx) && idx >= 0 && idx < SWEETS_LIST.length;
                     }).slice(0, 6).map(function(idx) {

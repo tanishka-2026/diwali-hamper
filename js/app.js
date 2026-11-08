@@ -64,12 +64,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const state = {
     selectedBox: 0,
     selectedRibbon: 0,
-    selectedFlowers: [0, 2, 3, 4],
-    flowerQuantities: { 0: 2, 2: 2, 3: 2, 4: 2 },
-    selectedSweets: [0, 1, 2],   // indices into SWEETS (default: ladoo, kaju_katli, barfi)
-    sweetQuantities: { 0: 1, 1: 1, 2: 1 },
+    selectedFlowers: [],
+    flowerQuantities: {},
+    selectedSweets: [],
+    sweetQuantities: {},
     selectedDiya: 0,
-    selectedDiyas: [0, 1, 2],
+    selectedDiyas: [],
     stickerPositions: {},
     selectedStickerKey: '',
     recipientName: '',
@@ -92,20 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function getFlowerStickerCount() {
     return state.selectedFlowers.reduce((total, index) => total + (state.flowerQuantities[index] || 1), 0);
-  }
-
-  function normalizeStickerPositions(positions) {
-    if (!positions || typeof positions !== 'object' || Array.isArray(positions)) return {};
-    return Object.fromEntries(Object.entries(positions)
-      .filter(([key, position]) =>
-        /^(sweet-(ladoo|kaju_katli|barfi|peda|jalebi|gulab_jamun|coconut_ladoo|modak)(-[1-9]|-1[01])?|flower-[0-5]-[0-7]|diya-[0-3])$/.test(key)
-        && position && Number.isFinite(position.x) && Number.isFinite(position.y))
-      .slice(0, 100)
-      .map(([key, position]) => [key, {
-        x: Math.min(430, Math.max(110, position.x)),
-        y: Math.min(410, Math.max(205, position.y)),
-        scale: Number.isFinite(position.scale) ? Math.min(2.4, Math.max(.45, position.scale)) : 1
-      }]));
   }
 
   /* ──────────────────────────────────────────────
@@ -136,80 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateStickerControls(svg, selected);
         }
       }
-      saveToLocalStorage();
     }, 80);
-  }
-
-  /* ──────────────────────────────────────────────
-   *  PERSISTENCE — localStorage
-   * ────────────────────────────────────────────── */
-
-  function saveToLocalStorage() {
-    try {
-      localStorage.setItem('littleDiwaliGift', JSON.stringify(state));
-    } catch (error) {
-      console.warn('Your gift could not be saved in this browser.', error);
-    }
-  }
-
-  function loadFromLocalStorage() {
-    try {
-      const saved = localStorage.getItem('littleDiwaliGift');
-      if (saved) {
-        const data = JSON.parse(saved);
-        if (data && typeof data === 'object') {
-          state.selectedBox = Number.isInteger(data.selectedBox) && BOXES[data.selectedBox] ? data.selectedBox : 0;
-          state.selectedRibbon = Number.isInteger(data.selectedRibbon) && RIBBONS[data.selectedRibbon] ? data.selectedRibbon : 0;
-          state.selectedFlowers = Array.isArray(data.selectedFlowers)
-            ? [...new Set(data.selectedFlowers.filter(index => Number.isInteger(index) && FLOWERS[index]))].slice(0, 6)
-            : [0, 2, 3, 4];
-          const savedFlowerQuantities = data.flowerQuantities && typeof data.flowerQuantities === 'object'
-            ? data.flowerQuantities
-            : {};
-          state.flowerQuantities = Object.fromEntries(FLOWERS.map(({ id }) => {
-            const quantity = Number(savedFlowerQuantities[id]);
-            return [id, Number.isInteger(quantity) ? Math.min(MAX_FLOWER_QUANTITY, Math.max(1, quantity)) : 2];
-          }));
-          state.selectedSweets = Array.isArray(data.selectedSweets)
-            ? [...new Set(data.selectedSweets.filter(index => Number.isInteger(index) && SWEETS[index]))].slice(0, 6)
-            : [0, 1, 2];
-          if (!state.selectedSweets.length) state.selectedSweets = [0];
-          const savedQuantities = data.sweetQuantities && typeof data.sweetQuantities === 'object'
-            ? data.sweetQuantities
-            : {};
-          state.sweetQuantities = Object.fromEntries(SWEETS.map((_, index) => {
-            const quantity = Number(savedQuantities[index]);
-            return [index, Number.isInteger(quantity) ? Math.min(MAX_SWEET_QUANTITY, Math.max(1, quantity)) : 1];
-          }));
-          state.selectedDiyas = Array.isArray(data.selectedDiyas)
-            ? [...new Set(data.selectedDiyas.filter(index => Number.isInteger(index) && DIYAS[index]))].slice(0, 4)
-            : [Number.isInteger(data.selectedDiya) && DIYAS[data.selectedDiya] ? data.selectedDiya : 0];
-          if (!state.selectedDiyas.length) state.selectedDiyas = [0];
-          state.selectedDiya = state.selectedDiyas[0];
-          state.stickerPositions = normalizeStickerPositions(data.stickerPositions);
-          state.selectedStickerKey = typeof data.selectedStickerKey === 'string'
-            && /^(sweet-(ladoo|kaju_katli|barfi|peda|jalebi|gulab_jamun|coconut_ladoo|modak)(-[1-9]|-1[01])?|flower-[0-5]-[0-7]|diya-[0-3])$/.test(data.selectedStickerKey)
-            ? data.selectedStickerKey
-            : '';
-          state.recipientName = typeof data.recipientName === 'string' && data.recipientName !== 'Bestie'
-            ? data.recipientName.slice(0, 30)
-            : '';
-          state.senderName = typeof data.senderName === 'string' && data.senderName !== 'Tanishka'
-            ? data.senderName.slice(0, 30)
-            : '';
-          state.message = typeof data.message === 'string'
-            && data.message !== 'May your Diwali be filled with happiness and light!'
-            ? data.message.slice(0, 100)
-            : '';
-        }
-
-        /* Restore form fields */
-        /* Re-apply visual selections */
-        applySelections();
-      }
-    } catch (error) {
-      console.warn('Saved gift data could not be restored; starting with a fresh gift.', error);
-    }
   }
 
   /* ──────────────────────────────────────────────
@@ -620,13 +533,41 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ---- f. Event listeners ---- */
     setupEventListeners();
 
-    /* ---- g. Restore persisted state ---- */
-    loadFromLocalStorage();
+    /* ---- g. Start with a clean gift each visit ---- */
     el('recipientName').value = state.recipientName;
     el('senderName').value = state.senderName;
     el('messageText').value = state.message;
     el('charCount').textContent = state.message.length;
     updatePreview();
+
+    try {
+      localStorage.removeItem('littleDiwaliGift');
+    } catch (error) {
+      console.warn('A previously saved gift could not be cleared from this browser.', error);
+    }
+
+    window.addEventListener('pageshow', event => {
+      if (!event.persisted) return;
+      state.selectedBox = 0;
+      state.selectedRibbon = 0;
+      state.selectedFlowers = [];
+      state.flowerQuantities = {};
+      state.selectedSweets = [];
+      state.sweetQuantities = {};
+      state.selectedDiya = 0;
+      state.selectedDiyas = [];
+      state.stickerPositions = {};
+      state.selectedStickerKey = '';
+      state.recipientName = '';
+      state.senderName = '';
+      state.message = '';
+      el('recipientName').value = '';
+      el('senderName').value = '';
+      el('messageText').value = '';
+      el('charCount').textContent = '0';
+      applySelections();
+      updatePreview();
+    });
   }
 
   function setupStickerDragging() {
@@ -691,7 +632,6 @@ document.addEventListener('DOMContentLoaded', () => {
       event.preventDefault();
       svg.setPointerCapture(event.pointerId);
       sticker.classList.add('is-dragging');
-      saveToLocalStorage();
     });
 
     container.addEventListener('pointermove', event => {
@@ -715,7 +655,6 @@ document.addEventListener('DOMContentLoaded', () => {
       activeDrag.sticker.classList.remove('is-dragging');
       if (activeDrag.current) {
         state.stickerPositions[activeDrag.key] = activeDrag.current;
-        saveToLocalStorage();
       }
       activeDrag = null;
     };
@@ -726,7 +665,6 @@ document.addEventListener('DOMContentLoaded', () => {
       state.selectedStickerKey = '';
       container.querySelectorAll('.selected-sticker').forEach(sticker => sticker.classList.remove('selected-sticker'));
       container.querySelector('.sticker-controls')?.setAttribute('display', 'none');
-      saveToLocalStorage();
     });
   }
 
@@ -931,7 +869,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const index = state.selectedDiyas.indexOf(diyaId);
         if (index >= 0) {
-          if (state.selectedDiyas.length <= 1) return;
           state.selectedDiyas.splice(index, 1);
           if (state.selectedStickerKey === `diya-${diyaId}`) state.selectedStickerKey = '';
         } else if (state.selectedDiyas.length < 4) {
@@ -940,7 +877,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           return;
         }
-        state.selectedDiya = state.selectedDiyas[0];
+        state.selectedDiya = state.selectedDiyas[0] || 0;
         if (state.selectedDiyas.includes(diyaId)) state.selectedStickerKey = `diya-${diyaId}`;
         applySelections();
         updatePreview();
@@ -952,7 +889,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (recipientInput) {
       recipientInput.addEventListener('input', () => {
         state.recipientName = recipientInput.value;
-        saveToLocalStorage();
       });
     }
 
@@ -960,7 +896,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (senderInput) {
       senderInput.addEventListener('input', () => {
         state.senderName = senderInput.value;
-        saveToLocalStorage();
       });
     }
 
@@ -970,7 +905,6 @@ document.addEventListener('DOMContentLoaded', () => {
       messageInput.addEventListener('input', () => {
         state.message = messageInput.value;
         if (charCount) charCount.textContent = messageInput.value.length;
-        saveToLocalStorage();
       });
     }
 
@@ -983,7 +917,6 @@ document.addEventListener('DOMContentLoaded', () => {
           messageInput.value = wish;
           state.message = wish;
           if (charCount) charCount.textContent = wish.length;
-          saveToLocalStorage();
         }
       });
     });
