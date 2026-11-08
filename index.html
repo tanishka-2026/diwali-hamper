@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Little Diwali 🪔</title>
+    <meta name="description" content="Create a beautiful personalised Diwali gift box and share it with someone special.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪔</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Nunito:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- ═══════════════ INTRO / LANDING OVERLAY ═══════════════ -->
+    <div id="introOverlay" class="intro-overlay hidden">
+        <div class="intro-wrapper">
+            <!-- Floating corner decorations -->
+            <div class="intro-deco intro-deco-tl" id="introDecoTL"></div>
+            <div class="intro-deco intro-deco-tr" id="introDecoTR"></div>
+            <div class="intro-deco intro-deco-bl" id="introDecoBL"></div>
+            <div class="intro-deco intro-deco-br" id="introDecoBR"></div>
+
+            <!-- Shop Front Illustration -->
+            <div class="shop-front">
+                <div class="shop-awning"></div>
+                <div class="shop-sign-frame">
+                    <h1 class="logo-script">A Little Diwali <span class="logo-heart">♡</span></h1>
+                    <p class="logo-tagline">A little sweetness, a little light, a lot of love.</p>
+                </div>
+                <div class="shop-window" id="shopWindow">
+                    <!-- Sweet illustrations rendered by JS -->
+                </div>
+            </div>
+
+            <!-- Welcome Text & CTA -->
+            <div class="intro-text-section">
+                <h2 class="intro-heading">A little gift, made with lots of love.</h2>
+                <p class="intro-description">
+                    Create a beautiful Diwali gift box, fill it with your favourite sweets, 
+                    light a little diya, write a heartfelt message — and share it with someone special. ✨
+                </p>
+                <button class="btn-create" id="btnCreate">
+                    <span>Create your gift box ♡</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Toran garland at top -->
+        <div class="intro-toran" id="introToran"></div>
+    </div>
+
+    <!-- ═══════════════ BUILDER PAGE ═══════════════ -->
+    <div id="builderPage" class="builder-page">
+
+        <!-- Header with Awning -->
+        <header class="builder-header">
+            <div class="header-awning"></div>
+            <div class="header-content">
+                <div class="header-frame">
+                    <h1 class="header-logo">A Little Diwali <span class="logo-heart">♡</span></h1>
+                    <p class="header-tagline">A little sweetness, a little light, a lot of love.</p>
+                </div>
+            </div>
+            <div class="header-toran" id="headerToran"></div>
+            <div class="header-toran header-toran-back" id="headerToranBack"></div>
+        </header>
+
+        <!-- Decorative page elements (Diwali themed — no cats) -->
+        <div class="page-decos">
+            <div class="page-deco page-deco-flower-tl" id="pageDecoFlowerTL"></div>
+            <div class="page-deco page-deco-flower-tr" id="pageDecoFlowerTR"></div>
+            <div class="page-deco page-deco-flower-bl" id="pageDecoFlowerBL"></div>
+            <div class="page-deco page-deco-flower-br" id="pageDecoFlowerBR"></div>
+            <div class="page-deco page-deco-lantern-l" id="pageDecoLanternL"></div>
+            <div class="page-deco page-deco-lantern-r" id="pageDecoLanternR"></div>
+            <div class="page-deco page-deco-corner-toran page-deco-corner-toran-l" id="pageDecoCornerToranL"></div>
+            <div class="page-deco page-deco-corner-toran page-deco-corner-toran-r" id="pageDecoCornerToranR"></div>
+            <div class="page-deco page-deco-side-lantern page-deco-side-lantern-l1" id="pageDecoSideLanternL1"></div>
+            <div class="page-deco page-deco-side-lantern page-deco-side-lantern-l2" id="pageDecoSideLanternL2"></div>
+            <div class="page-deco page-deco-side-lantern page-deco-side-lantern-r1" id="pageDecoSideLanternR1"></div>
+            <div class="page-deco page-deco-side-lantern page-deco-side-lantern-r2" id="pageDecoSideLanternR2"></div>
+            <div class="page-deco page-deco-butterfly" id="pageDecoButterfly"></div>
+        </div>
+
+        <!-- ═══ MAIN 3-COLUMN LAYOUT ═══ -->
+        <main class="builder-main">
+
+            <!-- LEFT PANEL: Customisation Options -->
+            <aside class="panel panel-left">
+
+                <!-- Choose Your Box -->
+                <section class="builder-section">
+                    <h3 class="section-title">
+                        <span class="section-emoji" id="sectionIconBox">🎁</span>
+                        Choose your box
+                        <span class="title-sparkle">✦</span>
+                    </h3>
+                    <div class="options-grid boxes-grid" id="boxOptions">
+                        <!-- 4 box option cards rendered by JS -->
+                    </div>
+                </section>
+
+                <!-- Add a ribbon -->
+                <section class="builder-section">
+                    <h3 class="section-title">
+                        <span class="section-emoji" id="sectionIconRibbon"></span>
+                        Tie a ribbon
+                        <span class="title-sparkle">✦</span>
+                    </h3>
+                    <div class="options-grid ribbons-grid" id="ribbonOptions" aria-label="Choose a box ribbon">
+                        <!-- Ribbon options rendered by JS -->
+                    </div>
+                </section>
+
+                <!-- Add Your Sweets -->
+                <section class="builder-section">
+                    <h3 class="section-title">
+                        <span class="section-emoji" id="sectionIconSweet">🍬</span>
+                        Add your sweets
+                        <span class="title-sparkle">✦</span>
+                    </h3>
+                    <p class="section-hint">Pick up to 6 kinds · 1–12 pieces each</p>
+                    <div class="options-grid sweets-grid" id="sweetGrid">
+                        <!-- 12 sweet option cards rendered by JS -->
+                    </div>
+                </section>
+
+                <!-- Add flower stickers -->
+                <section class="builder-section">
+                    <h3 class="section-title">
+                        <span class="section-emoji" id="sectionIconFlower"></span>
+                        Add flowers
+                        <span class="title-sparkle">✦</span>
+                    </h3>
+                    <p class="section-hint">Choose up to 6 flower stickers for your gift</p>
+                    <div class="options-grid flower-grid" id="flowerOptions" aria-label="Choose flower stickers">
+                        <!-- Flower sticker options rendered by JS -->
+                    </div>
+                </section>
+
+                <!-- Decorate Your Diya -->
+                <section class="builder-section">
+                    <h3 class="section-title">
+                        <span class="section-emoji" id="sectionIconDiya">🪔</span>
+                        Add your diyas
+                        <span class="title-sparkle">✦</span>
+                    </h3>
+                    <p class="section-hint">Choose up to 4 diya styles</p>
+                    <div class="options-grid diyas-grid" id="diyaOptions">
+                        <!-- 4 diya option cards rendered by JS -->
+                    </div>
+                </section>
+            </aside>
+
+            <!-- CENTER: Live Gift Preview -->
+            <div class="preview-area" id="previewArea">
+                <div class="preview-wrapper">
+                    <div class="preview-container" id="previewContainer">
+                        <!-- Main gift preview SVG rendered by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: Personal Message -->
+            <aside class="panel panel-right">
+                <section class="builder-section">
+                    <h3 class="section-title">
+                        <span class="section-emoji" id="sectionIconMessage"></span>
+                        Add a personal message
+                    </h3>
+
+                    <div class="form-group">
+                        <label class="form-label" for="recipientName">Recipient's Name</label>
+                        <input type="text" class="form-input" id="recipientName"
+                               placeholder="Bestie ♡" maxlength="30">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="senderName">Your Name</label>
+                        <input type="text" class="form-input" id="senderName"
+                               placeholder="Your name ♡" maxlength="30">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="messageText">Your Message</label>
+                        <textarea class="form-textarea" id="messageText"
+                                  placeholder="May your Diwali be filled with happiness and light! ✨"
+                                  maxlength="100" rows="3"></textarea>
+                        <div class="char-counter">
+                            <span id="charCount">0</span>/100
+                        </div>
+                    </div>
+
+                    <div class="prewritten-section">
+                        <p class="prewritten-label">Or choose a pre-written wish:</p>
+                        <div class="prewritten-wishes" id="prewrittenWishes">
+                            <button class="wish-btn" data-wish="Have a sparkling Diwali!">
+                                Have a sparkling Diwali! ✦
+                            </button>
+                            <button class="wish-btn" data-wish="You make life brighter!">
+                                You make life brighter! ♡
+                            </button>
+                            <button class="wish-btn" data-wish="Wishing you lots of happiness!">
+                                Wishing you lots of happiness!
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </aside>
+        </main>
+
+        <!-- BOTTOM BAR -->
+        <footer class="bottom-bar">
+            <div class="bottom-bar-inner">
+                <div class="gift-label-badge">
+                    <span class="gift-label-text">Your Little Diwali Gift ♡</span>
+                </div>
+                <div class="share-actions">
+                    <button class="btn-share" id="shareBtn">
+                        <span class="btn-share-icon" aria-hidden="true">♡</span>
+                        <span>Share My Gift</span>
+                        <span class="btn-share-sparkle">✦</span>
+                    </button>
+                    <button class="btn-icon btn-download" id="downloadBtn" title="Download as image">
+                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <path d="M11 3v12"/>
+                            <path d="M6 10l5 5 5-5"/>
+                            <path d="M3 19h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </footer>
+
+        <!-- SHARE MODAL -->
+        <div class="modal-overlay" id="shareModal">
+            <div class="modal-card">
+                <button class="modal-close-btn" id="modalCloseBtn" aria-label="Close">✕</button>
+                <div class="modal-header-section">
+                    <h2 class="modal-title">Share your gift! 🎁</h2>
+                    <p class="modal-subtitle">Copy this link and send it to your special person:</p>
+                </div>
+                <div class="share-link-row">
+                    <input type="text" class="share-link-input" id="shareLinkInput" readonly>
+                    <button class="btn-copy" id="copyLinkBtn">Copy ♡</button>
+                </div>
+                <p class="copy-status" id="copyStatus"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- External Scripts -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="js/svgAssets.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

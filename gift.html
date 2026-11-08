@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digi-Diwali-sweets🪔</title>
+    <meta name="description" content="Someone made you a special Diwali gift! Open it to see what's inside.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪔</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Nunito:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="gift-body">
+
+    <!-- ═══════════════ GIFT REVEAL SCREEN ═══════════════ -->
+    <div class="gift-reveal-screen" id="giftRevealScreen">
+        <div class="reveal-wrapper">
+            <div class="reveal-box-wrapper" id="revealBoxWrapper">
+                <!-- Animated closed gift box SVG rendered by JS -->
+            </div>
+
+            <h2 class="reveal-heading" id="revealHeading">Someone sent you a little Diwali gift!</h2>
+            <p class="reveal-subtext">Tap to unwrap your surprise 🪔</p>
+            <button class="btn-open-gift" id="btnOpenGift">Open your gift ✨</button>
+        </div>
+
+        <!-- Corner decorations -->
+        <div class="reveal-bg-decos">
+            <div class="reveal-toran reveal-toran-main" id="revealToranMain"></div>
+            <div class="reveal-toran reveal-toran-back" id="revealToranBack"></div>
+            <div class="reveal-deco reveal-deco-1" id="revealDeco1"></div>
+            <div class="reveal-deco reveal-deco-2" id="revealDeco2"></div>
+            <div class="reveal-deco reveal-deco-3" id="revealDeco3"></div>
+            <div class="reveal-deco reveal-deco-4" id="revealDeco4"></div>
+            <div class="reveal-side-toran reveal-side-toran-left" id="revealSideToranLeft"></div>
+            <div class="reveal-side-toran reveal-side-toran-right" id="revealSideToranRight"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ GIFT DISPLAY SCREEN ═══════════════ -->
+    <div class="gift-display-screen" id="giftDisplayScreen" style="display:none;">
+        <!-- Header -->
+        <header class="builder-header">
+            <div class="header-awning"></div>
+            <div class="header-content">
+                <div class="header-frame">
+                    <h1 class="header-logo">A Little Diwali <span class="logo-heart">♡</span></h1>
+                    <p class="header-tagline">A little sweetness, a little light, a lot of love.</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="gift-display-content">
+            <div class="gift-card">
+                <p class="gift-dear">Dear <span class="gift-recipient-name" id="giftRecipientName">Friend</span>,</p>
+
+                <div class="gift-preview-box" id="giftPreviewBox">
+                    <!-- Full gift preview SVG rendered here -->
+                </div>
+
+                <div class="gift-message-card">
+                    <p class="gift-msg" id="giftMsg">Happy Diwali! 🪔</p>
+                    <p class="gift-sender">With love, <span id="giftSenderName">A friend</span> 💕</p>
+                </div>
+            </div>
+
+            <div class="gift-cta">
+                <a href="index.html" class="btn-create-own">Create your own gift box ♡</a>
+            </div>
+        </div>
+
+        <!-- Page decorations -->
+        <div class="gift-page-decos">
+            <div class="page-deco page-deco-flower-tl" id="giftPageDecoTL"></div>
+            <div class="page-deco page-deco-flower-tr" id="giftPageDecoTR"></div>
+            <div class="page-deco page-deco-flower-bl" id="giftPageDecoBL"></div>
+            <div class="page-deco page-deco-flower-br" id="giftPageDecoBR"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/svgAssets.js"></script>
+    <script>
+    // ═══════════════ GIFT VIEWER LOGIC ═══════════════
+    (function() {
+        'use strict';
+
+        // Read gift data from URL hash
+        const hash = window.location.hash.slice(1);
+
+        if (!hash) {
+            showError('No gift found! Want to create one?', 'Create a gift 🪔');
+            return;
+        }
+
+        let giftData;
+        try {
+            giftData = JSON.parse(decodeURIComponent(escape(atob(hash))));
+        } catch(e) {
+            showError('Oops! This gift link seems broken.', 'Create a gift instead 🪔');
+            return;
+        }
+
+        // Personalise reveal heading
+        if (giftData.t) {
+            document.getElementById('revealHeading').textContent =
+                giftData.t + ', someone sent you a little Diwali gift!';
+        }
+
+        // Render decorative elements
+        populateDecos();
+
+        // Render a closed gift box on the reveal screen
+        if (typeof getBoxOptionSVG === 'function') {
+            const boxSvg = getBoxOptionSVG(giftData.b || 0);
+            document.getElementById('revealBoxWrapper').innerHTML =
+                '<div style="width:120px;margin:0 auto;">' + boxSvg + '</div>';
+        }
+
+        // ── Open Gift Button ──
+        document.getElementById('btnOpenGift').addEventListener('click', function() {
+            const revealScreen = document.getElementById('giftRevealScreen');
+            revealScreen.classList.add('opening');
+
+            setTimeout(function() {
+                revealScreen.style.display = 'none';
+                const displayScreen = document.getElementById('giftDisplayScreen');
+                displayScreen.style.display = 'block';
+                displayScreen.classList.add('fade-in');
+
+                // Render gift content
+                document.getElementById('giftRecipientName').textContent = giftData.t || 'Friend';
+                document.getElementById('giftMsg').textContent = giftData.m || 'Happy Diwali! 🪔';
+                document.getElementById('giftSenderName').textContent = giftData.f || 'A friend';
+
+                // Render full gift preview
+                if (typeof getPreviewSVG === 'function') {
+                    var SWEETS_LIST = ['ladoo','kaju_katli','barfi','peda','jalebi','gulab_jamun',
+                                       'coconut_ladoo','modak'];
+                    var quantities = giftData.q && typeof giftData.q === 'object' ? giftData.q : {};
+                    var ribbonIndex = Number.isInteger(giftData.r) && giftData.r >= 0 && giftData.r <= 2
+                        ? giftData.r
+                        : 0;
+                    var flowerIndices = Array.isArray(giftData.fl)
+                        ? giftData.fl.filter(function(index, position, all) {
+                            return Number.isInteger(index) && index >= 0 && index < 6 && all.indexOf(index) === position;
+                        }).slice(0, 6)
+                        : [0, 2, 3, 4];
+                    var flowerQuantities = giftData.fq && typeof giftData.fq === 'object'
+                        ? giftData.fq
+                        : {};
+                    var stickerPositions = giftData.sp && typeof giftData.sp === 'object' && !Array.isArray(giftData.sp)
+                        ? giftData.sp
+                        : {};
+                    var selectedStickerKey = typeof giftData.sk === 'string'
+                        && /^(sweet-(ladoo|kaju_katli|barfi|peda|jalebi|gulab_jamun|coconut_ladoo|modak)(-[1-9]|-1[01])?|flower-[0-5]-[0-7]|diya-[0-3])$/.test(giftData.sk)
+                        ? giftData.sk
+                        : '';
+                    var diyaIndices = Array.isArray(giftData.ds)
+                        ? giftData.ds.filter(function(index, position, all) {
+                            return Number.isInteger(index) && index >= 0 && index < 4 && all.indexOf(index) === position;
+                        }).slice(0, 4)
+                        : [Number.isInteger(giftData.d) && giftData.d >= 0 && giftData.d < 4 ? giftData.d : 0];
+                    if (!diyaIndices.length) diyaIndices = [0];
+                    var sweetItems = (giftData.s || [0,1,2]).filter(function(idx) {
+                        return Number.isInteger(idx) && idx >= 0 && idx < SWEETS_LIST.length;
+                    }).slice(0, 6).map(function(idx) {
+                        var quantity = Number(quantities[idx]);
+                        return {
+                            id: SWEETS_LIST[idx],
+                            quantity: Number.isInteger(quantity) ? Math.min(12, Math.max(1, quantity)) : 1
+                        };
+                    });
+                    var giftPreview = document.getElementById('giftPreviewBox');
+                    giftPreview.innerHTML =
+                        getPreviewSVG(giftData.b || 0, sweetItems, giftData.d || 0, ribbonIndex, flowerIndices, diyaIndices, flowerQuantities, stickerPositions, selectedStickerKey);
+                    if (selectedStickerKey) {
+                        var selectedSticker = giftPreview.querySelector('[data-sticker-key="' + selectedStickerKey + '"]');
+                        if (selectedSticker) selectedSticker.parentNode.appendChild(selectedSticker);
+                    }
+                }
+
+                // Populate display page decos
+                populateDisplayDecos();
+
+            }, 1500);
+        });
+
+        // ── Helper Functions ──
+        function showError(message, btnText) {
+            document.getElementById('giftRevealScreen').classList.add('is-error-state');
+            document.getElementById('revealHeading').textContent = message;
+            var btn = document.getElementById('btnOpenGift');
+            btn.textContent = btnText;
+            btn.onclick = function() { window.location.href = 'index.html'; };
+            var subtext = document.querySelector('.reveal-subtext');
+            subtext.textContent = 'Your little festive surprise is waiting to be made.';
+            subtext.style.display = 'block';
+            populateDecos();
+        }
+
+        function populateDecos() {
+            if (typeof getDecorativeSVG !== 'function') return;
+            setDeco('revealToranMain', 'toran');
+            setDeco('revealToranBack', 'toran-secondary');
+            setDeco('revealSideToranLeft', 'hanging-toran');
+            setDeco('revealSideToranRight', 'hanging-toran');
+            setDeco('revealDeco1', 'marigold');
+            setDeco('revealDeco2', 'marigold');
+            setDeco('revealDeco3', 'lotus');
+            setDeco('revealDeco4', 'lotus');
+        }
+
+        function populateDisplayDecos() {
+            if (typeof getDecorativeSVG !== 'function') return;
+            setDeco('giftPageDecoTL', 'marigold');
+            setDeco('giftPageDecoTR', 'marigold');
+            setDeco('giftPageDecoBL', 'lotus');
+            setDeco('giftPageDecoBR', 'lotus');
+        }
+
+        function setDeco(id, type) {
+            var el = document.getElementById(id);
+            if (el && typeof getDecorativeSVG === 'function') {
+                el.innerHTML = getDecorativeSVG(type);
+            }
+        }
+
+    })();
+    </script>
+</body>
+</html>
