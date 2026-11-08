@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
    *  SHARE LINK GENERATION
    * ────────────────────────────────────────────── */
 
-  function generateShareLink() {
+  async function generateShareLink() {
     const data = {
       b: state.selectedBox,
       s: state.selectedSweets,
@@ -280,18 +280,36 @@ document.addEventListener('DOMContentLoaded', () => {
       f: state.senderName,
       m: state.message
     };
-    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-    const shareUrl = new URL('gift.html', window.location.href);
-    shareUrl.hash = encoded;
-
-    const input = el('shareLinkInput');
-    if (input) input.value = shareUrl.href;
-
-    const modal = el('shareModal');
-    if (modal) modal.classList.add('active');
-
     const status = el('copyStatus');
-    if (status) status.textContent = '';
+    try {
+      const json = JSON.stringify(data);
+      let payload;
+      if ('CompressionStream' in window) {
+        const compressed = await new Response(
+          new Blob([json]).stream().pipeThrough(new CompressionStream('gzip'))
+        ).arrayBuffer();
+        const bytes = new Uint8Array(compressed);
+        let binary = '';
+        for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+          binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+        }
+        payload = `z=${btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')}`;
+      } else {
+        payload = btoa(unescape(encodeURIComponent(json)));
+      }
+
+      const shareUrl = new URL('gift.html', window.location.href);
+      shareUrl.hash = payload;
+      const input = el('shareLinkInput');
+      if (input) input.value = shareUrl.href;
+
+      const modal = el('shareModal');
+      if (modal) modal.classList.add('active');
+      if (status) status.textContent = '';
+    } catch (error) {
+      console.error('Your share link could not be generated.', error);
+      if (status) status.textContent = 'Could not create the share link. Please try again.';
+    }
   }
 
   /* ──────────────────────────────────────────────
@@ -907,8 +925,8 @@ document.addEventListener('DOMContentLoaded', () => {
     /* --- 6. Share button --- */
     const shareBtn = el('shareBtn');
     if (shareBtn) {
-      shareBtn.addEventListener('click', () => {
-        generateShareLink();
+      shareBtn.addEventListener('click', async () => {
+        await generateShareLink();
       });
     }
 

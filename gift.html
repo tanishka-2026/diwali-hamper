@@ -84,7 +84,7 @@
     <script src="js/svgAssets.js"></script>
     <script>
     // ═══════════════ GIFT VIEWER LOGIC ═══════════════
-    (function() {
+    (async function() {
         'use strict';
 
         // Read gift data from URL hash
@@ -97,7 +97,7 @@
 
         let giftData;
         try {
-            giftData = JSON.parse(decodeURIComponent(escape(atob(hash))));
+            giftData = await decodeGiftData(hash);
         } catch(e) {
             showError('Oops! This gift link seems broken.', 'Create a gift instead 🪔');
             return;
@@ -189,6 +189,24 @@
         });
 
         // ── Helper Functions ──
+        async function decodeGiftData(hashValue) {
+            if (hashValue.length > 24000) throw new Error('Gift link is too large.');
+            if (hashValue.startsWith('z=')) {
+                if (!('DecompressionStream' in window)) {
+                    throw new Error('Compressed gift links are not supported in this browser.');
+                }
+                var encoded = hashValue.slice(2).replace(/-/g, '+').replace(/_/g, '/');
+                encoded += '='.repeat((4 - encoded.length % 4) % 4);
+                var binary = atob(encoded);
+                var bytes = Uint8Array.from(binary, function(character) {
+                    return character.charCodeAt(0);
+                });
+                var stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+                return JSON.parse(await new Response(stream).text());
+            }
+            return JSON.parse(decodeURIComponent(escape(atob(hashValue))));
+        }
+
         function showError(message, btnText) {
             document.getElementById('giftRevealScreen').classList.add('is-error-state');
             document.getElementById('revealHeading').textContent = message;
