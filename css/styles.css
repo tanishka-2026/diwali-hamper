@@ -559,6 +559,10 @@ body::after {
   margin-top: -6px;
 }
 
+.mobile-swipe-hint {
+  display: none;
+}
+
 
 /* ═══════════════════════════════════════════════════════════════
    OPTION GRIDS
@@ -1838,6 +1842,10 @@ body::before {
   cursor: nesw-resize;
 }
 
+.sticker-controls [data-resize-handle] {
+  touch-action: none;
+}
+
 .form-group {
   margin-bottom: 8px;
 }
@@ -2184,6 +2192,41 @@ body::before {
     width: 41px;
     height: 41px;
   }
+
+  .intro-overlay {
+    align-items: flex-start;
+    padding: 18px 0;
+  }
+
+  .intro-wrapper {
+    width: 100%;
+    padding: 30px 18px;
+  }
+
+  .shop-front {
+    margin-bottom: 20px;
+  }
+
+  .intro-description {
+    font-size: .94rem;
+    margin-bottom: 20px;
+  }
+
+  .btn-create {
+    min-height: 48px;
+    padding: 13px 25px;
+    font-size: 1rem;
+  }
+
+  .wish-btn,
+  .btn-share,
+  .btn-icon,
+  .btn-copy,
+  .btn-open-gift,
+  .btn-create-own {
+    min-height: 44px;
+  }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2307,4 +2350,132 @@ body::before {
 
 .panel-left {
   max-height: calc(100vh - 250px);
+}
+
+@media (max-width: 680px) {
+  .mobile-swipe-hint {
+    display: inline;
+    color: #b86f5b;
+    font-weight: 800;
+  }
+
+  .panel,
+  .panel-left,
+  .panel-right {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .sweets-grid,
+  .flower-grid,
+  .diyas-grid {
+    grid-auto-flow: column;
+    grid-auto-columns: 90px;
+    grid-template-columns: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 8px 8px 10px 2px;
+    margin: -4px -6px 0 -2px;
+    overscroll-behavior-inline: contain;
+    scroll-behavior: smooth;
+    scroll-padding-inline: 8px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-color: rgba(232, 130, 144, .65) transparent;
+    scrollbar-width: thin;
+  }
+
+  .sweets-grid > *,
+  .flower-grid > *,
+  .diyas-grid > * {
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+
+  .sweets-grid .option-card,
+  .flower-grid .option-card,
+  .diyas-grid .option-card {
+    min-height: 100px;
+  }
+
+  .sweet-quantity {
+    gap: 8px;
+    min-height: 34px;
+  }
+
+  .quantity-button {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
+
+  .form-input,
+  .form-textarea {
+    min-height: 46px;
+    font-size: 16px;
+  }
+
+  .form-textarea {
+    min-height: 86px;
+  }
+
+  .wish-btn,
+  .btn-share,
+  .btn-icon,
+  .btn-copy,
+  .btn-open-gift,
+  .btn-create-own {
+    min-height: 44px;
+  }
+
+  .bottom-bar {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  }
+
+  .builder-main {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  }
+
+  .gift-display-content {
+    min-height: 100svh;
+    padding: 140px 14px calc(24px + env(safe-area-inset-bottom));
+  }
+
+  .gift-card {
+    padding: 18px 14px;
+  }
+
+  .gift-preview-box {
+    width: 100%;
+    max-width: 350px;
+  }
+
+  .gift-cta {
+    margin-top: 20px;
+  }
+
+  .gift-reveal-screen {
+    overflow-y: auto;
+    align-items: flex-start;
+    padding: 20px 0 calc(20px + env(safe-area-inset-bottom));
+  }
+
+  .reveal-wrapper {
+    width: 100%;
+    padding: 28px 18px;
+    margin: auto;
+  }
+
+  .reveal-box-wrapper {
+    width: min(120px, 32vw);
+    margin-bottom: 18px;
+  }
+
+  .reveal-heading {
+    font-size: clamp(1.7rem, 8vw, 2.2rem);
+  }
+
+  .reveal-subtext {
+    margin-bottom: 18px;
+  }
 }

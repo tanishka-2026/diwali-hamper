@@ -710,6 +710,15 @@ document.addEventListener('DOMContentLoaded', () => {
     controls.appendChild(border);
 
     corners.forEach((point, index) => {
+      const hitArea = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      hitArea.setAttribute('cx', point.x);
+      hitArea.setAttribute('cy', point.y);
+      hitArea.setAttribute('r', '18');
+      hitArea.setAttribute('fill', 'transparent');
+      hitArea.setAttribute('data-resize-handle', String(index));
+      hitArea.setAttribute('pointer-events', 'all');
+      controls.appendChild(hitArea);
+
       const handle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
       handle.setAttribute('cx', point.x);
       handle.setAttribute('cy', point.y);
@@ -717,8 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
       handle.setAttribute('fill', '#fffdf7');
       handle.setAttribute('stroke', '#b86b70');
       handle.setAttribute('stroke-width', '2');
-      handle.setAttribute('data-resize-handle', String(index));
-      handle.setAttribute('pointer-events', 'all');
+      handle.setAttribute('pointer-events', 'none');
       controls.appendChild(handle);
     });
     controls.setAttribute('display', 'inline');
